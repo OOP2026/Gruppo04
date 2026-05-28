@@ -7,8 +7,8 @@ public class Richiesta_Tirocinio {
     private Argomento_Tirocinio argomento;
 
     public Richiesta_Tirocinio(String stato,
-                              Studente studente,
-                              Argomento_Tirocinio argomento) {
+                               Studente studente,
+                               Argomento_Tirocinio argomento) {
 
         this.stato = stato;
         this.studente = studente;

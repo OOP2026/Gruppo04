@@ -10,9 +10,9 @@ public class Seduta_Di_Laurea {
     private List<Tesi> tesi;
 
     public Seduta_Di_Laurea(String data,
-                        String ora,
-                        String luogo,
-                        List<Tesi> tesi) {
+                            String ora,
+                            String luogo,
+                            List<Tesi> tesi) {
 
         this.data = data;
         this.ora = ora;

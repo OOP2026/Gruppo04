@@ -7,8 +7,8 @@ public class Tirocinio_Esterno {
     private Argomento_Tirocinio argomento;
 
     public Tirocinio_Esterno(String referenteAziendale,
-                            String aziendaPartner,
-                            Argomento_Tirocinio argomento) {
+                             String aziendaPartner,
+                             Argomento_Tirocinio argomento) {
 
         this.referenteAziendale = referenteAziendale;
         this.aziendaPartner = aziendaPartner;

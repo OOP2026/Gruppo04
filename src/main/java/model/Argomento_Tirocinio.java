@@ -33,4 +33,3 @@ public class Argomento_Tirocinio {
         richieste.add(richiesta);
     }
 }
-
