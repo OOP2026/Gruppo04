@@ -1,6 +1,7 @@
 package gui;
 
 import controller.Controller;
+import model.Utente;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,85 +10,90 @@ public class LoginFrame extends JFrame {
 
     private Controller controller;
 
-    private JTextField txtLogin;
-    private JPasswordField txtPassword;
-
-    private JButton btnLogin;
-    private JCheckBox chkMostraPassword;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
 
     public LoginFrame(Controller controller) {
 
         this.controller = controller;
 
         setTitle("Login");
-        setSize(400, 250);
+        setSize(420,280);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // PANEL
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        panel.setLayout(new GridLayout(4,2,10,10));
 
-        // LABEL
-        JLabel lblLogin = new JLabel("Username:");
-        JLabel lblPassword = new JLabel("Password:");
+        JLabel usernameLabel = new JLabel("Username:");
 
-        // CAMPI
-        txtLogin = new JTextField();
-        txtPassword = new JPasswordField();
+        usernameField = new JTextField();
 
-        // BOTTONE LOGIN
-        btnLogin = new JButton("Login");
+        JLabel passwordLabel = new JLabel("Password:");
 
-        // CHECKBOX MOSTRA PASSWORD
-        chkMostraPassword = new JCheckBox("Mostra password");
+        passwordField = new JPasswordField();
 
-        // COMPONENTI
-        panel.add(lblLogin);
-        panel.add(txtLogin);
+        JButton loginButton = new JButton("Login");
 
-        panel.add(lblPassword);
-        panel.add(txtPassword);
+        JCheckBox mostraPassword = new JCheckBox("Mostra Password");
 
-        panel.add(new JLabel(""));
-        panel.add(chkMostraPassword);
+        panel.add(usernameLabel);
+        panel.add(usernameField);
 
-        panel.add(new JLabel(""));
-        panel.add(btnLogin);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
 
-        // AGGIUNTA PANEL
+        panel.add(mostraPassword);
+        panel.add(new JLabel());
+
+        panel.add(new JLabel());
+        panel.add(loginButton);
+
         add(panel);
 
-        // EVENTO LOGIN
-        btnLogin.addActionListener(e -> eseguiLogin());
+        mostraPassword.addActionListener(e -> {
 
-        // EVENTO MOSTRA PASSWORD
-        chkMostraPassword.addActionListener(e -> mostraPassword());
+            if(mostraPassword.isSelected()) {
+                passwordField.setEchoChar((char)0);
+            }
+            else {
+                passwordField.setEchoChar('•');
+            }
+
+        });
+
+        loginButton.addActionListener(e -> login());
     }
 
-    private void eseguiLogin() {
+    private void login() {
 
-        String login = txtLogin.getText();
+        String username = usernameField.getText();
 
         String password =
-                new String(txtPassword.getPassword());
+                new String(passwordField.getPassword());
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Login inserito:\n" +
-                        login + "\n" + password
-        );
-    }
+        Utente utente =
+                controller.login(username,password);
 
-    private void mostraPassword() {
+        if(utente != null) {
 
-        if (chkMostraPassword.isSelected()) {
+            MainFrame main =
+                    new MainFrame(controller,utente);
 
-            txtPassword.setEchoChar((char) 0);
+            main.setVisible(true);
 
-        } else {
+            dispose();
 
-            txtPassword.setEchoChar('*');
         }
+        else {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Credenziali non valide."
+            );
+
+        }
+
     }
+
 }
