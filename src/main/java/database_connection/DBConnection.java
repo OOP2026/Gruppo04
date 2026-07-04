@@ -5,23 +5,31 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Classe di utilità per la gestione della connessione al database PostgreSQL.
- * Fornisce un punto centralizzato per ottenere connessioni JDBC.
+ * Gestisce la connessione al database PostgreSQL.
  */
-public class DBConnection {
+public final class DBConnection {
 
-    private static final String URL =
-            "jdbc:postgresql://localhost:5432/tesi_db";
+    private static final String URL = "jdbc:postgresql://localhost:5432/tesi_db";
 
-    private static final String USER = "postgres";
+    /*
+     * Le credenziali vengono lette dalle variabili d'ambiente.
+     * Se non sono presenti, vengono usati i valori di default.
+     */
+    private static final String USER =
+            System.getenv().getOrDefault("DB_USER", "postgres");
 
-    private static final String PASSWORD = "postgres";
+    private static final String PASSWORD =
+            System.getenv().getOrDefault("DB_PASSWORD", "postgres");
+
+    private DBConnection() {
+        // Impedisce l'istanziazione della classe.
+    }
 
     /**
-     * Restituisce una connessione al database PostgreSQL.
+     * Restituisce una connessione al database.
      *
-     * @return Connection attiva
-     * @throws SQLException in caso di errore di connessione
+     * @return connessione JDBC
+     * @throws SQLException se la connessione fallisce
      */
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
