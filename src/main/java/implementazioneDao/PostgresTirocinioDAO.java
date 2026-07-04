@@ -39,10 +39,8 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'inserimento dell'argomento di tirocinio.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -61,10 +59,8 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'invio della richiesta di tirocinio.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -83,10 +79,8 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'inserimento del tirocinio esterno.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -108,7 +102,7 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero degli argomenti di tirocinio.", e);
         }
 
         return lista;
@@ -144,7 +138,7 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero delle richieste di tirocinio.", e);
         }
 
         return lista;
@@ -177,7 +171,7 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero dei tirocini esterni.", e);
         }
 
         return lista;
@@ -205,7 +199,7 @@ public class PostgresTirocinioDAO implements TirocinioDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero dell'argomento di tirocinio.", e);
         }
 
         return null;

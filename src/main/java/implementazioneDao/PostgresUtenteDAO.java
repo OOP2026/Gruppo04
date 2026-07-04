@@ -34,7 +34,7 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il login dell'utente.", e);
         }
 
         return null;
@@ -60,10 +60,8 @@ public class PostgresUtenteDAO implements UtenteDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'inserimento dello studente.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -86,10 +84,8 @@ public class PostgresUtenteDAO implements UtenteDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'inserimento del docente.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -107,7 +103,7 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero degli studenti.", e);
         }
 
         return lista;
@@ -128,7 +124,7 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero dei docenti.", e);
         }
 
         return lista;
@@ -151,7 +147,7 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero dello studente.", e);
         }
 
         return null;
@@ -174,7 +170,7 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero del docente.", e);
         }
 
         return null;
@@ -197,18 +193,17 @@ public class PostgresUtenteDAO implements UtenteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero dell'utente.", e);
         }
 
         return null;
     }
 
-    // ===================== MAPPER =====================
-
     /**
-     * Converte una riga ResultSet in un Utente.
+     * Converte una riga del ResultSet in un oggetto Utente.
      */
     private Utente mapUtente(ResultSet rs) throws SQLException {
+
         String tipo = rs.getString("tipo");
 
         if ("STUDENTE".equalsIgnoreCase(tipo)) {
@@ -219,9 +214,10 @@ public class PostgresUtenteDAO implements UtenteDAO {
     }
 
     /**
-     * Converte una riga ResultSet in uno Studente.
+     * Converte una riga del ResultSet in uno Studente.
      */
     private Studente mapStudente(ResultSet rs) throws SQLException {
+
         return new Studente(
                 rs.getString("nome"),
                 rs.getString("cognome"),
@@ -233,9 +229,10 @@ public class PostgresUtenteDAO implements UtenteDAO {
     }
 
     /**
-     * Converte una riga ResultSet in un Docente.
+     * Converte una riga del ResultSet in un Docente.
      */
     private Docente mapDocente(ResultSet rs) throws SQLException {
+
         return new Docente(
                 rs.getString("nome"),
                 rs.getString("cognome"),

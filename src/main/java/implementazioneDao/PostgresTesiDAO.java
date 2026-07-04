@@ -43,10 +43,8 @@ public class PostgresTesiDAO implements TesiDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il salvataggio della tesi.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -64,14 +62,16 @@ public class PostgresTesiDAO implements TesiDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero delle tesi.", e);
         }
 
         return lista;
     }
 
     @Override
-    public Tesi getTesiByChiavi(String fileTesi, String studenteLogin, String docenteLogin) {
+    public Tesi getTesiByChiavi(String fileTesi,
+                                String studenteLogin,
+                                String docenteLogin) {
 
         String sql = "SELECT * FROM tesi WHERE file_tesi = ? AND studente_login = ? AND docente_login = ?";
 
@@ -89,7 +89,7 @@ public class PostgresTesiDAO implements TesiDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero della tesi.", e);
         }
 
         return null;
@@ -111,10 +111,8 @@ public class PostgresTesiDAO implements TesiDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante l'approvazione della tesi.", e);
         }
-
-        return false;
     }
 
     /**
@@ -122,10 +120,14 @@ public class PostgresTesiDAO implements TesiDAO {
      */
     private Tesi mapTesi(ResultSet rs) throws SQLException {
 
-        Studente studente = utenteDAO.getStudenteByLogin(rs.getString("studente_login"));
-        Docente docente = utenteDAO.getDocenteByLogin(rs.getString("docente_login"));
+        Studente studente =
+                utenteDAO.getStudenteByLogin(rs.getString("studente_login"));
 
-        Date dataCaricamento = new Date(rs.getDate("data_caricamento").getTime());
+        Docente docente =
+                utenteDAO.getDocenteByLogin(rs.getString("docente_login"));
+
+        Date dataCaricamento =
+                new Date(rs.getDate("data_caricamento").getTime());
 
         return new Tesi(
                 rs.getString("file_tesi"),

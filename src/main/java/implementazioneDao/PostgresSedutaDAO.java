@@ -65,10 +65,8 @@ public class PostgresSedutaDAO implements SedutaDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante la creazione della seduta di laurea.", e);
         }
-
-        return false;
     }
 
     @Override
@@ -93,7 +91,7 @@ public class PostgresSedutaDAO implements SedutaDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero delle sedute di laurea.", e);
         }
 
         return lista;
@@ -132,7 +130,7 @@ public class PostgresSedutaDAO implements SedutaDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Errore durante il recupero delle tesi della seduta.", e);
         }
 
         return lista;
