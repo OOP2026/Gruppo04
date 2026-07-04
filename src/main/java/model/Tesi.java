@@ -46,4 +46,12 @@ public class Tesi {
     public Docente getDocente() {
         return docente;
     }
+
+    @Override
+    public String toString() {
+        return "Tesi: " + fileTesi +
+                " | Studente: " + studente.getNome() + " " + studente.getCognome() +
+                " | Docente: " + docente.getNome() + " " + docente.getCognome() +
+                " | Stato: " + statoApprovazione;
+    }
 }
