@@ -10,90 +10,115 @@ public class LoginFrame extends JFrame {
 
     private Controller controller;
 
-    private JTextField usernameField;
+    private JTextField loginField;
     private JPasswordField passwordField;
+
+    private JButton loginButton;
+    private JButton showPasswordButton;
+
+    private boolean passwordVisible = false;
 
     public LoginFrame(Controller controller) {
 
         this.controller = controller;
 
-        setTitle("Login");
-        setSize(420,280);
+        setTitle("Sistema Gestione Tesi");
+        setSize(420, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4,2,10,10));
+        setResizable(false);
 
-        JLabel usernameLabel = new JLabel("Username:");
+        initUI();
+    }
 
-        usernameField = new JTextField();
+    private void initUI() {
 
-        JLabel passwordLabel = new JLabel("Password:");
+        // 🌟 contenitore principale centrato
+        JPanel root = new JPanel(new GridBagLayout());
+        root.setBackground(new Color(245, 247, 250));
 
-        passwordField = new JPasswordField();
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(8, 8, 8, 8);
+        c.fill = GridBagConstraints.HORIZONTAL;
 
-        JButton loginButton = new JButton("Login");
+        JLabel title = new JLabel("LOGIN", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 22));
 
-        JCheckBox mostraPassword = new JCheckBox("Mostra Password");
+        loginField = new JTextField(18);
+        passwordField = new JPasswordField(18);
 
-        panel.add(usernameLabel);
-        panel.add(usernameField);
+        loginButton = new JButton("Accedi");
+        showPasswordButton = new JButton("👁");
 
-        panel.add(passwordLabel);
-        panel.add(passwordField);
+        // 🔵 stile bottone login
+        loginButton.setBackground(new Color(70, 130, 180));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setFocusPainted(false);
 
-        panel.add(mostraPassword);
-        panel.add(new JLabel());
-
-        panel.add(new JLabel());
-        panel.add(loginButton);
-
-        add(panel);
-
-        mostraPassword.addActionListener(e -> {
-
-            if(mostraPassword.isSelected()) {
-                passwordField.setEchoChar((char)0);
-            }
-            else {
+        // 👁 password toggle
+        showPasswordButton.setPreferredSize(new Dimension(50, 25));
+        showPasswordButton.addActionListener(e -> {
+            if (passwordVisible) {
                 passwordField.setEchoChar('•');
+                passwordVisible = false;
+            } else {
+                passwordField.setEchoChar((char) 0);
+                passwordVisible = true;
             }
-
         });
 
-        loginButton.addActionListener(e -> login());
+        loginButton.addActionListener(e -> doLogin());
+
+        getRootPane().setDefaultButton(loginButton);
+
+        // 🔷 layout
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
+        root.add(title, c);
+
+        c.gridy++;
+        root.add(loginField, c);
+
+        c.gridy++;
+        root.add(passwordField, c);
+
+        c.gridy++;
+        JPanel passPanel = new JPanel(new BorderLayout());
+        passPanel.add(passwordField, BorderLayout.CENTER);
+        passPanel.add(showPasswordButton, BorderLayout.EAST);
+        root.add(passPanel, c);
+
+        c.gridy++;
+        root.add(loginButton, c);
+
+        add(root);
+
+        SwingUtilities.invokeLater(() -> loginField.requestFocusInWindow());
     }
 
-    private void login() {
+    private void doLogin() {
 
-        String username = usernameField.getText();
+        String login = loginField.getText();
+        String password = new String(passwordField.getPassword());
 
-        String password =
-                new String(passwordField.getPassword());
-
-        Utente utente =
-                controller.login(username,password);
-
-        if(utente != null) {
-
-            MainFrame main =
-                    new MainFrame(controller,utente);
-
-            main.setVisible(true);
-
-            dispose();
-
-        }
-        else {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Credenziali non valide."
-            );
-
+        if (login.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Inserisci login e password");
+            return;
         }
 
+        Utente utente = controller.login(login, password);
+
+        if (utente == null) {
+            JOptionPane.showMessageDialog(this, "Credenziali errate");
+            return;
+        }
+
+        MainFrame main = new MainFrame(controller, utente);
+        main.setVisible(true);
+
+        dispose();
     }
-
 }

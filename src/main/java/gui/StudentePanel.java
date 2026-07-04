@@ -1,11 +1,13 @@
 package gui;
 
 import controller.Controller;
+import model.Argomento_Tirocinio;
 import model.Docente;
 import model.Studente;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class StudentePanel extends JPanel {
 
@@ -13,60 +15,56 @@ public class StudentePanel extends JPanel {
     private Studente studente;
 
     public StudentePanel(Controller controller, Studente studente) {
+
         this.controller = controller;
         this.studente = studente;
 
         setLayout(new BorderLayout());
 
-        JLabel titolo = new JLabel(
-                "Area Studente - Benvenuto " + studente.getNome() + " " + studente.getCognome(),
+        JLabel title = new JLabel(
+                "Area Studente - " + studente.getNome(),
                 SwingConstants.CENTER
         );
+        title.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JButton caricaTesiButton = new JButton("Carica Tesi");
-        JButton richiestaTirocinioButton = new JButton("Richiedi Tirocinio");
+        JPanel buttons = new JPanel(new FlowLayout());
 
-        JPanel bottoniPanel = new JPanel();
-        bottoniPanel.add(caricaTesiButton);
-        bottoniPanel.add(richiestaTirocinioButton);
+        JButton tesi = new JButton("Carica Tesi");
+        JButton tirocinio = new JButton("Richiedi Tirocinio");
 
-        add(titolo, BorderLayout.NORTH);
-        add(bottoniPanel, BorderLayout.CENTER);
+        tesi.setFocusPainted(false);
+        tirocinio.setFocusPainted(false);
 
-        caricaTesiButton.addActionListener(e -> caricaTesi());
-        richiestaTirocinioButton.addActionListener(e -> richiediTirocinio());
+        buttons.add(tesi);
+        buttons.add(tirocinio);
+
+        add(title, BorderLayout.NORTH);
+        add(buttons, BorderLayout.CENTER);
+
+        tesi.addActionListener(e -> caricaTesi());
+        tirocinio.addActionListener(e -> richiediTirocinio());
     }
 
     private void caricaTesi() {
-        String nomeFile = JOptionPane.showInputDialog(
-                this,
-                "Inserisci nome file tesi:"
-        );
 
-        if (nomeFile == null || nomeFile.trim().isEmpty()) {
-            return;
-        }
+        String file = JOptionPane.showInputDialog(this, "Nome file tesi:");
+        if (file == null || file.isBlank()) return;
 
-        if (controller.getDocenti().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nessun docente disponibile.");
-            return;
-        }
+        List<Docente> docenti = controller.getDocenti();
+        if (docenti.isEmpty()) return;
 
-        Docente docente = controller.getDocenti().get(0);
+        controller.caricaTesi(file, studente, docenti.get(0));
 
-        controller.caricaTesi(nomeFile, studente, docente);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Tesi caricata correttamente.\nDocente assegnato: "
-                        + docente.getNome() + " " + docente.getCognome()
-        );
+        JOptionPane.showMessageDialog(this, "Tesi caricata");
     }
 
     private void richiediTirocinio() {
-        JOptionPane.showMessageDialog(
-                this,
-                "Richiesta tirocinio inviata correttamente."
-        );
+
+        List<Argomento_Tirocinio> argomenti = controller.getArgomenti();
+        if (argomenti.isEmpty()) return;
+
+        controller.inviaRichiestaTirocinio(studente, argomenti.get(0));
+
+        JOptionPane.showMessageDialog(this, "Richiesta inviata");
     }
 }

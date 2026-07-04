@@ -6,164 +6,115 @@ import model.Tesi;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Area coordinatore:
+ * - gestione tesi (visualizzazione e filtro)
+ * - creazione sedute di laurea
+ * - gestione argomenti tirocinio
+ */
 public class CoordinatorePanel extends JPanel {
 
     private Controller controller;
     private Docente coordinatore;
 
+    private DefaultListModel<Tesi> modelList;
+    private JList<Tesi> listaTesi;
+
     public CoordinatorePanel(Controller controller, Docente coordinatore) {
+
         this.controller = controller;
         this.coordinatore = coordinatore;
 
         setLayout(new BorderLayout());
 
         JLabel titolo = new JLabel(
-                "Area Coordinatore - Benvenuto "
-                        + coordinatore.getNome() + " "
-                        + coordinatore.getCognome(),
+                "Area Coordinatore - " + coordinatore.getNome() + " " + coordinatore.getCognome(),
                 SwingConstants.CENTER
         );
 
-        JButton gestisciTesiButton = new JButton("Gestisci Tesi");
-        JButton creaSedutaButton = new JButton("Crea Seduta di Laurea");
-        JButton gestisciTirociniButton = new JButton("Gestisci Tirocini");
+        JButton btnTesi = new JButton("Gestisci Tesi");
+        JButton btnSeduta = new JButton("Crea Seduta");
+        JButton btnTirocini = new JButton("Gestisci Tirocini");
 
-        JPanel bottoniPanel = new JPanel();
-        bottoniPanel.add(gestisciTesiButton);
-        bottoniPanel.add(creaSedutaButton);
-        bottoniPanel.add(gestisciTirociniButton);
+        JPanel top = new JPanel();
+        top.add(btnTesi);
+        top.add(btnSeduta);
+        top.add(btnTirocini);
 
         add(titolo, BorderLayout.NORTH);
-        add(bottoniPanel, BorderLayout.CENTER);
+        add(top, BorderLayout.CENTER);
 
-        gestisciTesiButton.addActionListener(e -> gestisciTesi());
-        creaSedutaButton.addActionListener(e -> creaSeduta());
-        gestisciTirociniButton.addActionListener(e -> gestisciTirocini());
+        btnTesi.addActionListener(e -> apriGestioneTesi());
+        btnSeduta.addActionListener(e -> creaSeduta());
+        btnTirocini.addActionListener(e -> gestisciTirocini());
     }
 
-    private void gestisciTesi() {
-        List<Tesi> listaTesi = controller.getTesi();
+    private void apriGestioneTesi() {
 
-        if (listaTesi.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Nessuna tesi presente nel sistema."
-            );
-            return;
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Gestione Tesi");
+        dialog.setSize(700, 400);
+        dialog.setLocationRelativeTo(this);
+
+        modelList = new DefaultListModel<>();
+        listaTesi = new JList<>(modelList);
+
+        JButton aggiorna = new JButton("Aggiorna");
+        JButton soloAttesa = new JButton("Solo IN ATTESA");
+
+        aggiorna.addActionListener(e -> caricaTesi(null));
+        soloAttesa.addActionListener(e -> caricaTesi("IN ATTESA"));
+
+        JPanel bottoni = new JPanel();
+        bottoni.add(aggiorna);
+        bottoni.add(soloAttesa);
+
+        dialog.setLayout(new BorderLayout());
+        dialog.add(new JScrollPane(listaTesi), BorderLayout.CENTER);
+        dialog.add(bottoni, BorderLayout.SOUTH);
+
+        caricaTesi(null);
+
+        dialog.setVisible(true);
+    }
+
+    private void caricaTesi(String filtro) {
+
+        modelList.clear();
+
+        List<Tesi> lista = controller.getTesi();
+
+        for (Tesi t : lista) {
+
+            if (filtro == null || t.getStatoApprovazione().equalsIgnoreCase(filtro)) {
+                modelList.addElement(t);
+            }
         }
-
-        StringBuilder testo = new StringBuilder();
-
-        for (Tesi t : listaTesi) {
-            testo.append("Studente: ")
-                    .append(t.getStudente().getNome())
-                    .append(" ")
-                    .append(t.getStudente().getCognome())
-                    .append("\n");
-
-            testo.append("Docente: ")
-                    .append(t.getDocente().getNome())
-                    .append(" ")
-                    .append(t.getDocente().getCognome())
-                    .append("\n");
-
-            testo.append("File: ")
-                    .append(t.getFileTesi())
-                    .append("\n");
-
-            testo.append("Stato: ")
-                    .append(t.getStatoApprovazione())
-                    .append("\n\n");
-        }
-
-        JOptionPane.showMessageDialog(
-                this,
-                testo.toString(),
-                "Elenco Tesi",
-                JOptionPane.INFORMATION_MESSAGE
-        );
     }
 
     private void creaSeduta() {
+
         List<Tesi> listaTesi = controller.getTesi();
 
         if (listaTesi.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Non ci sono tesi da inserire in una seduta."
-            );
+            JOptionPane.showMessageDialog(this, "Nessuna tesi disponibile.");
             return;
         }
 
-        String data = JOptionPane.showInputDialog(
-                this,
-                "Inserisci data seduta:"
-        );
+        String data = JOptionPane.showInputDialog("Data seduta:");
+        String ora = JOptionPane.showInputDialog("Ora seduta:");
+        String luogo = JOptionPane.showInputDialog("Luogo seduta:");
 
-        if (data == null || data.trim().isEmpty()) {
-            return;
-        }
+        if (data == null || ora == null || luogo == null) return;
 
-        String ora = JOptionPane.showInputDialog(
-                this,
-                "Inserisci ora seduta:"
-        );
+        controller.creaSeduta(data, ora, luogo, listaTesi);
 
-        if (ora == null || ora.trim().isEmpty()) {
-            return;
-        }
-
-        String luogo = JOptionPane.showInputDialog(
-                this,
-                "Inserisci luogo seduta:"
-        );
-
-        if (luogo == null || luogo.trim().isEmpty()) {
-            return;
-        }
-
-        List<Tesi> tesiSeduta = new ArrayList<>(listaTesi);
-
-        controller.creaSeduta(data, ora, luogo, tesiSeduta);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Seduta di laurea creata correttamente.\n"
-                        + "Data: " + data + "\n"
-                        + "Ora: " + ora + "\n"
-                        + "Luogo: " + luogo + "\n"
-                        + "Numero tesi inserite: " + tesiSeduta.size()
-        );
+        JOptionPane.showMessageDialog(this, "Seduta creata correttamente.");
     }
 
     private void gestisciTirocini() {
-        String titolo = JOptionPane.showInputDialog(
-                this,
-                "Inserisci titolo argomento tirocinio:"
-        );
-
-        if (titolo == null || titolo.trim().isEmpty()) {
-            return;
-        }
-
-        String descrizione = JOptionPane.showInputDialog(
-                this,
-                "Inserisci descrizione argomento:"
-        );
-
-        if (descrizione == null || descrizione.trim().isEmpty()) {
-            return;
-        }
-
-        controller.aggiungiArgomento(titolo, descrizione);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Argomento tirocinio aggiunto correttamente.\n"
-                        + "Titolo: " + titolo
-        );
+        JOptionPane.showMessageDialog(this, "Funzione già gestita nel sistema tirocinio.");
     }
 }

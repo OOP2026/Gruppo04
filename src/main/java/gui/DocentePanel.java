@@ -8,10 +8,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Pannello docente: visualizza e approva tesi.
+ */
 public class DocentePanel extends JPanel {
 
     private Controller controller;
     private Docente docente;
+
+    private JList<Tesi> listaTesiJList;
+    private DefaultListModel<Tesi> listModel;
 
     public DocentePanel(Controller controller, Docente docente) {
 
@@ -21,95 +27,62 @@ public class DocentePanel extends JPanel {
         setLayout(new BorderLayout());
 
         JLabel titolo = new JLabel(
-                "Area Docente - Benvenuto "
-                        + docente.getNome() + " "
-                        + docente.getCognome(),
+                "Area Docente - Benvenuto " +
+                        docente.getNome() + " " +
+                        docente.getCognome(),
                 SwingConstants.CENTER
         );
 
-        JButton visualizzaTesiButton =
-                new JButton("Visualizza Tesi");
+        JButton aggiornaButton = new JButton("Aggiorna lista tesi");
+        JButton approvaButton = new JButton("Approva selezionata");
 
-        JButton approvaTesiButton =
-                new JButton("Approva Tesi");
+        JPanel top = new JPanel();
+        top.add(aggiornaButton);
+        top.add(approvaButton);
 
-        JPanel bottoniPanel = new JPanel();
+        listModel = new DefaultListModel<>();
+        listaTesiJList = new JList<>(listModel);
+        listaTesiJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        bottoniPanel.add(visualizzaTesiButton);
-        bottoniPanel.add(approvaTesiButton);
+        JScrollPane scroll = new JScrollPane(listaTesiJList);
 
         add(titolo, BorderLayout.NORTH);
-        add(bottoniPanel, BorderLayout.CENTER);
+        add(scroll, BorderLayout.CENTER);
+        add(top, BorderLayout.SOUTH);
 
-        visualizzaTesiButton.addActionListener(
-                e -> visualizzaTesi()
-        );
-
-        approvaTesiButton.addActionListener(
-                e -> approvaTesi()
-        );
+        aggiornaButton.addActionListener(e -> caricaTesi());
+        approvaButton.addActionListener(e -> approvaTesi());
     }
 
-    private void visualizzaTesi() {
+    private void caricaTesi() {
 
-        List<Tesi> listaTesi = controller.getTesi();
+        listModel.clear();
 
-        if (listaTesi.isEmpty()) {
+        List<Tesi> tesiList = controller.getTesi();
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Nessuna tesi presente."
-            );
-
+        if (tesiList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nessuna tesi presente.");
             return;
         }
 
-        StringBuilder testo = new StringBuilder();
-
-        for (Tesi t : listaTesi) {
-
-            testo.append("Studente: ")
-                    .append(t.getStudente().getNome())
-                    .append(" ")
-                    .append(t.getStudente().getCognome())
-                    .append("\n");
-
-            testo.append("File: ")
-                    .append(t.getFileTesi())
-                    .append("\n");
-
-            testo.append("Stato: ")
-                    .append(t.getStatoApprovazione())
-                    .append("\n\n");
+        for (Tesi t : tesiList) {
+            listModel.addElement(t);
         }
-
-        JOptionPane.showMessageDialog(
-                this,
-                testo.toString()
-        );
     }
 
     private void approvaTesi() {
 
-        List<Tesi> listaTesi = controller.getTesi();
+        Tesi selezionata = listaTesiJList.getSelectedValue();
 
-        if (listaTesi.isEmpty()) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Non ci sono tesi da approvare."
-            );
-
+        if (selezionata == null) {
+            JOptionPane.showMessageDialog(this, "Seleziona una tesi!");
             return;
         }
 
-        Tesi primaTesi = listaTesi.get(0);
+        controller.approvaTesi(selezionata);
 
-        controller.approvaTesi(primaTesi);
+        JOptionPane.showMessageDialog(this, "Tesi approvata correttamente.");
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Tesi approvata correttamente."
-        );
+        caricaTesi();
     }
 }

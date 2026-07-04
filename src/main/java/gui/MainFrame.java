@@ -1,7 +1,9 @@
 package gui;
 
 import controller.Controller;
-import model.*;
+import model.Docente;
+import model.Utente;
+import model.Studente;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,110 +13,59 @@ public class MainFrame extends JFrame {
     private Controller controller;
     private Utente utente;
 
-    public MainFrame(
-            Controller controller,
-            Utente utente
-    ) {
+    public MainFrame(Controller controller, Utente utente) {
 
         this.controller = controller;
         this.utente = utente;
 
-        setTitle("Sistema Gestione Tesi");
-
-        setSize(900,650);
-
+        setTitle("Dashboard Sistema Tesi");
+        setSize(1000, 650);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
         setLocationRelativeTo(null);
-
-        JButton logoutButton =
-                new JButton("Logout");
-
-        logoutButton.addActionListener(
-                e -> logout()
-        );
-
-        JPanel topPanel =
-                new JPanel(new FlowLayout(
-                        FlowLayout.RIGHT));
-
-        topPanel.add(logoutButton);
-
-        JPanel contentPanel = new JPanel(
-                new BorderLayout()
-        );
-
-        if(utente instanceof Studente) {
-
-            contentPanel.add(
-                    new StudentePanel(
-                            controller,
-                            (Studente) utente
-                    ),
-                    BorderLayout.CENTER
-            );
-
-        }
-
-        else if(utente instanceof Docente) {
-
-            Docente docente =
-                    (Docente) utente;
-
-            if(docente.isCoordinatore()) {
-
-                contentPanel.add(
-                        new CoordinatorePanel(
-                                controller,
-                                docente
-                        ),
-                        BorderLayout.CENTER
-                );
-
-            }
-
-            else {
-
-                contentPanel.add(
-                        new DocentePanel(
-                                controller,
-                                docente
-                        ),
-                        BorderLayout.CENTER
-                );
-
-            }
-
-        }
 
         setLayout(new BorderLayout());
 
-        add(topPanel,BorderLayout.NORTH);
+        // TOP BAR
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logout = new JButton("Logout");
+        logout.setFocusPainted(false);
+        topBar.add(logout);
 
-        add(contentPanel,BorderLayout.CENTER);
+        logout.addActionListener(e -> logout());
+
+        // BODY
+        JPanel body = new JPanel(new BorderLayout());
+
+        if (utente instanceof Studente) {
+            body.add(new StudentePanel(controller, (Studente) utente), BorderLayout.CENTER);
+        }
+        else if (utente instanceof Docente) {
+
+            Docente d = (Docente) utente;
+
+            if (d.isCoordinatore()) {
+                body.add(new CoordinatorePanel(controller, d), BorderLayout.CENTER);
+            } else {
+                body.add(new DocentePanel(controller, d), BorderLayout.CENTER);
+            }
+        }
+
+        add(topBar, BorderLayout.NORTH);
+        add(body, BorderLayout.CENTER);
     }
 
     private void logout() {
 
-        int scelta =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        "Vuoi effettuare il logout?",
-                        "Logout",
-                        JOptionPane.YES_NO_OPTION
-                );
+        int res = JOptionPane.showConfirmDialog(
+                this,
+                "Confermi logout?",
+                "Logout",
+                JOptionPane.YES_NO_OPTION
+        );
 
-        if(scelta == JOptionPane.YES_OPTION) {
-
-            LoginFrame login =
-                    new LoginFrame(controller);
-
-            login.setVisible(true);
-
+        if (res == JOptionPane.YES_OPTION) {
+            new LoginFrame(controller).setVisible(true);
             dispose();
-
         }
-
     }
-
 }
