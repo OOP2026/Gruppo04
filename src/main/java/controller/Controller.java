@@ -1,122 +1,124 @@
 package controller;
 
+import dao.*;
 import model.*;
+import postgresdao.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Controller centrale dell'applicazione.
+ * Fa da intermediario tra GUI e livello DAO (database).
+ * Gestisce tutte le operazioni principali del sistema.
+ */
 public class Controller {
 
-    private List<Studente> studenti;
-    private List<Docente> docenti;
-    private List<Tesi> tesi;
-    private List<Seduta_Di_Laurea> sedute;
-    private List<Argomento_Tirocinio> argomenti;
-    private List<Richiesta_Tirocinio> richieste;
-    private List<Tirocinio_Esterno> tirociniEsterni;
+    private final UtenteDAO utenteDAO;
+    private final TesiDAO tesiDAO;
+    private final SedutaDAO sedutaDAO;
+    private final TirocinioDAO tirocinioDAO;
 
+    /**
+     * Inizializza i DAO con implementazione PostgreSQL.
+     */
     public Controller() {
-        studenti = new ArrayList<>();
-        docenti = new ArrayList<>();
-        tesi = new ArrayList<>();
-        sedute = new ArrayList<>();
-        argomenti = new ArrayList<>();
-        richieste = new ArrayList<>();
-        tirociniEsterni = new ArrayList<>();
-
-        // UTENTI DI TEST PER IL LOGIN
-        studenti.add(new Studente(
-                "Mario", "Rossi", "mario@email.it",
-                "studente", "1234", "M123"
-        ));
-
-        docenti.add(new Docente(
-                "Luigi", "Verdi", "luigi@email.it",
-                "docente", "1234", false
-        ));
-
-        docenti.add(new Docente(
-                "Anna", "Bianchi", "anna@email.it",
-                "coordinatore", "1234", true
-        ));
+        this.utenteDAO = new PostgresUtenteDAO();
+        this.tesiDAO = new PostgresTesiDAO(utenteDAO);
+        this.sedutaDAO = new PostgresSedutaDAO(tesiDAO);
+        this.tirocinioDAO = new PostgresTirocinioDAO(utenteDAO);
     }
 
+    /** Esegue il login dell'utente */
     public Utente login(String login, String password) {
-        for (Studente s : studenti) {
-            if (s.getLogin().equals(login) && s.getPassword().equals(password)) {
-                return s;
-            }
-        }
-
-        for (Docente d : docenti) {
-            if (d.getLogin().equals(login) && d.getPassword().equals(password)) {
-                return d;
-            }
-        }
-
-        return null;
+        return utenteDAO.login(login, password);
     }
 
-    public void aggiungiStudente(Studente studente) {
-        studenti.add(studente);
+    /** Registra uno studente */
+    public boolean aggiungiStudente(Studente studente) {
+        return utenteDAO.inserisciStudente(studente);
     }
 
-    public void aggiungiDocente(Docente docente) {
-        docenti.add(docente);
+    /** Registra un docente */
+    public boolean aggiungiDocente(Docente docente) {
+        return utenteDAO.inserisciDocente(docente);
     }
 
-    public void caricaTesi(String file, Studente studente, Docente docente) {
-        Tesi nuovaTesi = new Tesi(
-                file,
-                "IN ATTESA",
-                new Date(),
-                studente,
-                docente
-        );
-
-        tesi.add(nuovaTesi);
-        docente.aggiungiTesi(nuovaTesi);
-    }
-
-    public void approvaTesi(Tesi t) {
-        t.setStatoApprovazione("APPROVATA");
-    }
-
+    /** Restituisce tutti gli studenti */
     public List<Studente> getStudenti() {
-        return studenti;
+        return utenteDAO.getStudenti();
     }
 
+    /** Restituisce tutti i docenti */
     public List<Docente> getDocenti() {
-        return docenti;
+        return utenteDAO.getDocenti();
     }
 
+    /** Carica una nuova tesi */
+    public boolean caricaTesi(String file, Studente studente, Docente docente) {
+
+        Tesi tesi = new Tesi(file, "IN ATTESA", new Date(), studente, docente);
+        return tesiDAO.salvaTesi(tesi);
+    }
+
+    /** Approva una tesi */
+    public boolean approvaTesi(Tesi tesi) {
+        return tesiDAO.approvaTesi(tesi);
+    }
+
+    /** Lista tutte le tesi */
     public List<Tesi> getTesi() {
-        return tesi;
+        return tesiDAO.getTesi();
     }
 
+    /** Crea una seduta di laurea */
+    public boolean creaSeduta(String data, String ora, String luogo, List<Tesi> tesi) {
+
+        Seduta_Di_Laurea seduta = new Seduta_Di_Laurea(data, ora, luogo, tesi);
+        return sedutaDAO.creaSeduta(seduta);
+    }
+
+    /** Lista sedute */
     public List<Seduta_Di_Laurea> getSedute() {
-        return sedute;
+        return sedutaDAO.getSedute();
     }
 
+    /** Aggiunge argomento tirocinio */
+    public boolean aggiungiArgomento(String titolo, String descrizione) {
+
+        return tirocinioDAO.inserisciArgomento(
+                new Argomento_Tirocinio(titolo, descrizione)
+        );
+    }
+
+    /** Invia richiesta tirocinio */
+    public boolean inviaRichiestaTirocinio(Studente studente, Argomento_Tirocinio argomento) {
+
+        return tirocinioDAO.inviaRichiesta(
+                new Richiesta_Tirocinio("IN ATTESA", studente, argomento)
+        );
+    }
+
+    /** Aggiunge tirocinio esterno */
+    public boolean aggiungiTirocinioEsterno(String referente, String azienda, Argomento_Tirocinio argomento) {
+
+        return tirocinioDAO.inserisciTirocinioEsterno(
+                new Tirocinio_Esterno(referente, azienda, argomento)
+        );
+    }
+
+    /** Lista argomenti tirocinio */
     public List<Argomento_Tirocinio> getArgomenti() {
-        return argomenti;
+        return tirocinioDAO.getArgomenti();
     }
 
+    /** Lista richieste tirocinio */
     public List<Richiesta_Tirocinio> getRichieste() {
-        return richieste;
+        return tirocinioDAO.getRichieste();
     }
 
+    /** Lista tirocini esterni */
     public List<Tirocinio_Esterno> getTirociniEsterni() {
-        return tirociniEsterni;
-    }
-    public void creaSeduta(String data, String ora, String luogo, List<Tesi> tesiSeduta) {
-        Seduta_Di_Laurea seduta = new Seduta_Di_Laurea(data, ora, luogo, tesiSeduta);
-        sedute.add(seduta);
-    }
-
-    public void aggiungiArgomento(String titolo, String descrizione) {
-        Argomento_Tirocinio argomento = new Argomento_Tirocinio(titolo, descrizione);
-        argomenti.add(argomento);
+        return tirocinioDAO.getTirociniEsterni();
     }
 }
