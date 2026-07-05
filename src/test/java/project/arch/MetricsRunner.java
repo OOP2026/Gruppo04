@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class MetricsRunner {
     public static void main(String[] args) {
-        JavaClasses classes = new ClassFileImporter().withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS).importPackages("project");
+        JavaClasses classes = new ClassFileImporter().withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS).importPackages("");
         Set<JavaPackage> packages = classes.getPackage("project").getSubpackages();
 
         MetricsComponents<JavaClass> components = MetricsComponents.fromPackages(packages);
