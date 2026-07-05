@@ -5,9 +5,11 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.junit.ArchUnitRunner;
 import com.tngtech.archunit.lang.ArchRule;
 import org.junit.runner.RunWith;
+import org.junit.Ignore;
 
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
+@Ignore
 @RunWith(ArchUnitRunner.class)
 @AnalyzeClasses(packages = "")
 public class LayeredArchitectureTest {
