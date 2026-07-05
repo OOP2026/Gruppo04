@@ -12,7 +12,7 @@ import static com.tngtech.archunit.library.GeneralCodingRules.*;
 import static com.tngtech.archunit.library.GeneralCodingRules.BE_ANNOTATED_WITH_AN_INJECTION_ANNOTATION;
 
 @RunWith(ArchUnitRunner.class)
-@AnalyzeClasses(packages = "project")
+@AnalyzeClasses(packages = "")
 public class BestPracticesTest {
 //    @ArchTest
 //    public static final ArchRule system_out_is_not_called = noClasses()
