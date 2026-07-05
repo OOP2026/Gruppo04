@@ -11,7 +11,10 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 @RunWith(ArchUnitRunner.class)
 @AnalyzeClasses(packages = "")
 public class CyclicDependencyTest {
+
     @ArchTest
     public static final ArchRule no_cyclic_dependencies = slices()
             .matching("(*)..")
+            .should()
+            .beFreeOfCycles();
 }
