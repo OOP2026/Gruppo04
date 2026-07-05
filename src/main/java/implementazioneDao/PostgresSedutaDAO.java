@@ -1,4 +1,4 @@
-package postgresdao;
+package implementazioneDao;
 
 import dao.SedutaDAO;
 import dao.TesiDAO;
